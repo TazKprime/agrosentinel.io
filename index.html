@@ -1,0 +1,680 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.app{font-family:var(--font-sans);min-height:100vh}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.4rem;border-bottom:.5px solid var(--color-border-tertiary)}
+.nav-brand{font-family:'Playfair Display',serif;font-size:17px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:7px}
+.leaf{width:20px;height:20px;background:#3B6D11;border-radius:50% 50% 50% 0;display:flex;align-items:center;justify-content:center}
+.leaf svg{width:11px;height:11px;fill:#EAF3DE}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{font-size:11px;padding:5px 11px;border-radius:var(--border-radius-md);cursor:pointer;border:none;background:transparent;color:var(--color-text-secondary);font-family:var(--font-sans);transition:all .15s}
+.nav-tab.active{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.live-pill{background:#EAF3DE;color:#27500A;font-size:10px;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:4px;border:.5px solid #97C459}
+.ldot{width:5px;height:5px;border-radius:50%;background:#3B6D11;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.controls{padding:.65rem 1.4rem;display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-bottom:.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.ctrl-lbl{font-size:10px;color:var(--color-text-secondary);font-family:'DM Mono',monospace}
+select{font-size:11px;padding:4px 8px;border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);border:.5px solid var(--color-border-secondary)}
+.alert-bar{margin:.65rem 1.4rem .2rem;border-radius:var(--border-radius-md);padding:6px 11px;display:flex;align-items:flex-start;gap:7px;font-size:11px;transition:all .3s}
+.page{display:none}.page.active{display:block}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;border-bottom:.5px solid var(--color-border-tertiary)}
+.lpanel{padding:1.1rem;border-right:.5px solid var(--color-border-tertiary)}
+.rpanel{padding:1.1rem}
+.ptitle{font-size:9px;font-family:'DM Mono',monospace;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.8rem}
+.sat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:.8rem}
+.sc{border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:9px 11px;background:var(--color-background-primary)}
+.sc-src{font-size:8px;font-family:'DM Mono',monospace;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px}
+.sc-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;margin:2px 0}
+.sc-lbl{font-size:10px;color:var(--color-text-secondary)}
+.sc-bar{height:2px;border-radius:1px;margin-top:6px;background:var(--color-border-tertiary);overflow:hidden}
+.sc-fill{height:100%;border-radius:1px;transition:width .4s ease}
+.mapbox{width:100%;height:142px;border-radius:var(--border-radius-lg);background:var(--color-background-secondary);border:.5px solid var(--color-border-tertiary);overflow:hidden;position:relative;margin-bottom:.8rem}
+.map-lbl{position:absolute;top:6px;left:8px;font-size:8px;font-family:'DM Mono',monospace;color:var(--color-text-secondary)}
+.crop-row{display:flex;align-items:center;gap:7px;padding:7px 0;border-bottom:.5px solid var(--color-border-tertiary)}
+.crop-row:last-child{border-bottom:none}
+.cico{width:24px;height:24px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;background:var(--color-background-secondary)}
+.cname{font-size:11px;font-weight:500;color:var(--color-text-primary)}
+.cact{font-size:10px;color:var(--color-text-secondary);margin-top:1px}
+.pill{font-size:8px;padding:2px 6px;border-radius:20px;font-family:'DM Mono',monospace;white-space:nowrap}
+.pg{background:#EAF3DE;color:#27500A;border:.5px solid #97C459}
+.pa{background:#FAEEDA;color:#633806;border:.5px solid #EF9F27}
+.pb{background:#E6F1FB;color:#0C447C;border:.5px solid #85B7EB}
+.pt{background:#E1F5EE;color:#085041;border:.5px solid #5DCAA5}
+.cf-hi{font-size:9px;font-family:'DM Mono',monospace;color:#3B6D11}
+.cf-md{font-size:9px;font-family:'DM Mono',monospace;color:#854F0B}
+.cf-lo{font-size:9px;font-family:'DM Mono',monospace;color:#993C1D}
+.chart-sec{padding:1.1rem;border-bottom:.5px solid var(--color-border-tertiary)}
+.chart-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem}
+.legend{display:flex;gap:10px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--color-text-secondary)}
+.legsq{width:7px;height:7px;border-radius:2px}
+.src-strip{padding:.65rem 1.4rem;border-bottom:.5px solid var(--color-border-tertiary);display:flex;gap:5px;flex-wrap:wrap}
+.stag{font-size:9px;font-family:'DM Mono',monospace;background:var(--color-background-secondary);color:var(--color-text-secondary);padding:2px 6px;border-radius:20px;border:.5px solid var(--color-border-tertiary)}
+.askbtn{width:calc(100% - 2.8rem);margin:.8rem 1.4rem;padding:8px;border-radius:var(--border-radius-lg);background:transparent;border:.5px solid var(--color-border-secondary);color:var(--color-text-primary);font-size:11px;cursor:pointer;font-family:var(--font-sans);display:flex;justify-content:space-between;align-items:center}
+.askbtn:hover{background:var(--color-background-secondary)}
+.cal-wrap{padding:1.1rem 1.4rem}
+.cal-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.9rem}
+.cal-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:400}
+.cal-meta{font-size:9px;font-family:'DM Mono',monospace;color:var(--color-text-secondary);margin-top:4px}
+.stabs{display:flex;gap:2px}
+.stab{font-size:10px;padding:4px 10px;border-radius:var(--border-radius-md);cursor:pointer;border:.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-family:var(--font-sans);transition:all .15s}
+.stab.active{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-secondary)}
+.tlwrap{overflow-x:auto;margin-bottom:.9rem}
+.tlg{display:grid;grid-template-columns:106px repeat(12,1fr);gap:0;min-width:500px}
+.th{font-size:8px;font-family:'DM Mono',monospace;color:var(--color-text-secondary);text-align:center;padding:2px 0}
+.th.now{color:#185FA5;font-weight:600}
+.trl{font-size:9px;color:var(--color-text-secondary);padding-right:5px;display:flex;align-items:center;min-height:24px;line-height:1.3}
+.tc{height:20px;position:relative}
+.b{position:absolute;top:3px;bottom:3px;border-radius:3px}
+.grphdr{grid-column:1/-1;font-size:8px;font-family:'DM Mono',monospace;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;padding:5px 0 2px}
+.tldiv{grid-column:1/-1;height:.5px;background:var(--color-border-tertiary);margin:3px 0}
+.ins-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 1.4rem .9rem}
+.ic{border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:9px 11px;background:var(--color-background-primary)}
+.ic-src{font-size:8px;font-family:'DM Mono',monospace;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.ic-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:400}
+.ic-lbl{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.ic-bar{height:2px;border-radius:1px;margin-top:6px;transition:width .4s}
+.phase-sec{padding:0 1.4rem .9rem}
+.phase-title{font-size:9px;font-family:'DM Mono',monospace;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.7rem}
+.prow{display:flex;align-items:flex-start;gap:9px;margin-bottom:9px}
+.pmk{width:11px;height:11px;border-radius:3px;flex-shrink:0;margin-top:3px}
+.ptxt{font-size:11px;color:var(--color-text-primary);line-height:1.6}
+.ptxt span{color:var(--color-text-secondary)}
+</style>
+
+<div class="app">
+<div class="nav">
+  <div class="nav-brand">
+    <div class="leaf"><svg viewBox="0 0 12 12"><path d="M6 1C6 1 1 3 1 8c0 2 2 3 5 3s5-1 5-3c0-5-5-7-5-7z"/></svg></div>
+    AgroSentinel Ghana
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('dashboard',this)">Dashboard</button>
+    <button class="nav-tab" onclick="showPage('calendar',this)">Crop Calendar</button>
+  </div>
+  <div class="live-pill"><span class="ldot"></span><span id="liveDateTxt"></span></div>
+</div>
+
+<div class="controls">
+  <span class="ctrl-lbl">Region</span>
+  <select id="regionSel" onchange="refresh()">
+    <option>Greater Accra</option><option>Ashanti</option><option>Northern</option>
+    <option>Brong-Ahafo</option><option>Volta</option><option>Upper West</option>
+  </select>
+  <span class="ctrl-lbl">Season</span>
+  <select id="seasonSel" onchange="refresh()">
+    <option value="major">Major Season (Mar–Jul)</option>
+    <option value="minor">Minor Season (Aug–Nov)</option>
+    <option value="dry">Dry Season</option>
+  </select>
+  <span class="ctrl-lbl">Crop</span>
+  <select id="cropSel" onchange="refresh()">
+    <option>Maize</option><option>Cassava</option><option>Cocoa</option>
+    <option>Rice</option><option>Groundnut</option><option>Cowpea</option>
+  </select>
+</div>
+
+<div class="alert-bar" id="alertBar">
+  <span style="font-size:12px;flex-shrink:0;margin-top:1px">&#9888;</span>
+  <div id="alertText"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="dash-grid">
+    <div class="lpanel">
+      <div class="ptitle" id="satTitle">Satellite indices</div>
+      <div class="sat-grid">
+        <div class="sc"><div class="sc-src">Sentinel-2 · NDVI</div><div class="sc-val" id="v-ndvi" style="color:#3B6D11"></div><div class="sc-lbl" id="l-ndvi"></div><div class="sc-bar"><div class="sc-fill" id="b-ndvi" style="background:#3B6D11"></div></div></div>
+        <div class="sc"><div class="sc-src">MODIS · LST</div><div class="sc-val" id="v-lst" style="color:#854F0B"></div><div class="sc-lbl" id="l-lst"></div><div class="sc-bar"><div class="sc-fill" id="b-lst" style="background:#854F0B"></div></div></div>
+        <div class="sc"><div class="sc-src">SMAP · Soil H₂O</div><div class="sc-val" id="v-smap" style="color:#185FA5"></div><div class="sc-lbl" id="l-smap"></div><div class="sc-bar"><div class="sc-fill" id="b-smap" style="background:#185FA5"></div></div></div>
+        <div class="sc"><div class="sc-src">Landsat 9 · EVI</div><div class="sc-val" id="v-evi" style="color:#0F6E56"></div><div class="sc-lbl" id="l-evi"></div><div class="sc-bar"><div class="sc-fill" id="b-evi" style="background:#0F6E56"></div></div></div>
+      </div>
+      <div class="mapbox">
+        <div class="map-lbl" id="mapLbl"></div>
+        <svg viewBox="0 0 280 142" width="100%" height="100%" style="display:block">
+          <defs>
+            <radialGradient id="ga" cx="42%" cy="76%" r="20%"><stop offset="0%" stop-color="#639922" stop-opacity=".8"/><stop offset="100%" stop-color="#EAF3DE" stop-opacity="0"/></radialGradient>
+            <radialGradient id="gb" cx="50%" cy="52%" r="26%"><stop offset="0%" stop-color="#1D9E75" stop-opacity=".7"/><stop offset="100%" stop-color="#EAF3DE" stop-opacity="0"/></radialGradient>
+            <radialGradient id="gc" cx="52%" cy="28%" r="24%"><stop offset="0%" stop-color="#1D9E75" stop-opacity=".6"/><stop offset="100%" stop-color="#EAF3DE" stop-opacity="0"/></radialGradient>
+            <radialGradient id="gd" cx="37%" cy="56%" r="20%"><stop offset="0%" stop-color="#EF9F27" stop-opacity=".55"/><stop offset="100%" stop-color="#FAEEDA" stop-opacity="0"/></radialGradient>
+            <radialGradient id="ge" cx="68%" cy="57%" r="18%"><stop offset="0%" stop-color="#1D9E75" stop-opacity=".65"/><stop offset="100%" stop-color="#EAF3DE" stop-opacity="0"/></radialGradient>
+            <radialGradient id="gf" cx="27%" cy="28%" r="18%"><stop offset="0%" stop-color="#EF9F27" stop-opacity=".55"/><stop offset="100%" stop-color="#FAEEDA" stop-opacity="0"/></radialGradient>
+          </defs>
+          <path d="M78,10 L158,8 L186,20 L197,52 L199,92 L180,134 L140,145 L98,143 L62,127 L42,96 L40,60 L52,30Z" fill="#E1F5EE" stroke="var(--color-border-tertiary)" stroke-width=".5"/>
+          <ellipse cx="112" cy="108" rx="26" ry="18" fill="url(#ga)"/>
+          <ellipse cx="120" cy="72" rx="32" ry="26" fill="url(#gb)"/>
+          <ellipse cx="138" cy="40" rx="30" ry="22" fill="url(#gc)"/>
+          <ellipse cx="98" cy="78" rx="22" ry="18" fill="url(#gd)"/>
+          <ellipse cx="158" cy="80" rx="24" ry="18" fill="url(#ge)"/>
+          <ellipse cx="80" cy="36" rx="20" ry="16" fill="url(#gf)"/>
+          <circle cx="112" cy="108" r="3.5" fill="#185FA5" opacity=".9"/>
+          <circle cx="118" cy="73" r="3" fill="#3B6D11" opacity=".85"/>
+          <circle cx="136" cy="38" r="3" fill="#3B6D11" opacity=".8"/>
+          <circle cx="97" cy="78" r="3" fill="#3B6D11" opacity=".75"/>
+          <circle cx="158" cy="82" r="3" fill="#3B6D11" opacity=".75"/>
+          <circle cx="79" cy="36" r="3" fill="#854F0B" opacity=".8"/>
+          <text x="118" y="112" font-size="6.5" fill="#0C447C" font-family="monospace">Greater Accra</text>
+          <text x="122" y="77" font-size="6.5" fill="#27500A" font-family="monospace">Ashanti</text>
+          <text x="141" y="42" font-size="6.5" fill="#27500A" font-family="monospace">Northern</text>
+          <text x="56" y="84" font-size="6.5" fill="#27500A" font-family="monospace">Brong-Ahafo</text>
+          <text x="163" y="86" font-size="6.5" fill="#27500A" font-family="monospace">Volta</text>
+          <text x="58" y="40" font-size="6.5" fill="#633806" font-family="monospace">Upper West</text>
+          <circle id="ring" cx="112" cy="108" r="7" fill="none" stroke="#185FA5" stroke-width="1.5" opacity=".75"/>
+        </svg>
+      </div>
+    </div>
+    <div class="rpanel">
+      <div class="ptitle">Crop scheduling recommendations</div>
+      <div id="cropList"></div>
+    </div>
+  </div>
+  <div class="chart-sec">
+    <div class="chart-hdr">
+      <span class="ptitle" style="margin-bottom:0">12-month satellite index trend</span>
+      <div class="legend">
+        <span class="leg"><span class="legsq" style="background:#3B6D11"></span>NDVI</span>
+        <span class="leg"><span class="legsq" style="background:#185FA5"></span>Soil moisture</span>
+        <span class="leg"><span class="legsq" style="background:#854F0B"></span>LST norm.</span>
+      </div>
+    </div>
+    <div style="position:relative;height:150px;width:100%">
+      <canvas id="trendChart" role="img" aria-label="12-month satellite index trend">Satellite index trend.</canvas>
+    </div>
+  </div>
+  <div class="src-strip">
+    <span class="stag">Copernicus Sentinel-2</span><span class="stag">NASA Landsat 9</span>
+    <span class="stag">MODIS Terra/Aqua</span><span class="stag">NASA SMAP L4</span>
+    <span class="stag">CHIRPS Rainfall</span><span class="stag">MoFA Ghana</span>
+  </div>
+  <button class="askbtn" onclick="switchToCalendar()">
+    <span id="dashAskTxt">View crop calendar ↗</span><span style="opacity:.4">→</span>
+  </button>
+</div>
+
+<!-- CALENDAR -->
+<div class="page" id="page-calendar">
+  <div class="cal-wrap">
+    <div class="cal-top">
+      <div>
+        <div class="cal-title" id="calTitle"></div>
+        <div class="cal-meta" id="calMeta"></div>
+      </div>
+      <div class="stabs">
+        <button class="stab active" onclick="setSeason('both',this)">Both</button>
+        <button class="stab" onclick="setSeason('major',this)">Major</button>
+        <button class="stab" onclick="setSeason('minor',this)">Minor</button>
+      </div>
+    </div>
+    <div class="tlwrap"><div class="tlg" id="tlg"></div></div>
+  </div>
+  <div class="ins-grid">
+    <div class="ic"><div class="ic-src">SMAP L4 — current</div><div class="ic-val" id="ci-smap" style="color:#185FA5"></div><div class="ic-lbl" id="ci-smap-lbl"></div><div class="ic-bar" id="ci-smap-bar" style="background:#185FA5"></div></div>
+    <div class="ic"><div class="ic-src">Sentinel-2</div><div class="ic-val" id="ci-ndvi" style="color:#3B6D11"></div><div class="ic-lbl" id="ci-ndvi-lbl"></div><div class="ic-bar" id="ci-ndvi-bar" style="background:#3B6D11"></div></div>
+    <div class="ic"><div class="ic-src">MODIS Terra — daily</div><div class="ic-val" id="ci-lst" style="color:#854F0B"></div><div class="ic-lbl" id="ci-lst-lbl"></div><div class="ic-bar" id="ci-lst-bar" style="background:#854F0B"></div></div>
+    <div class="ic"><div class="ic-src">Landsat-9 · MoFA forecast</div><div class="ic-val" id="ci-yield" style="color:#3B6D11"></div><div class="ic-lbl" id="ci-yield-lbl"></div><div class="ic-bar" id="ci-yield-bar" style="background:#3B6D11"></div></div>
+  </div>
+  <div class="phase-sec">
+    <div class="phase-title">Satellite-informed phase advisories</div>
+    <div id="phaseList"></div>
+  </div>
+  <button class="askbtn" id="calAskBtn">
+    <span id="calAskTxt">Ask: fertilizer + NDVI stress monitoring ↗</span><span style="opacity:.4">→</span>
+  </button>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── LIVE DATE ─────────────────────────────────
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAY_NAMES   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function formatDate(d) {
+  return `Live · ${DAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+}
+function tickClock() {
+  const now = new Date();
+  document.getElementById('liveDateTxt').textContent = formatDate(now);
+  // also update map label
+  const ml = document.getElementById('mapLbl');
+  if (ml) ml.textContent = `NDVI overlay · ${d2s(now)}`;
+}
+function d2s(d){ return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`; }
+
+// highlight current month column in timeline
+function currentMonthIdx(){ return new Date().getMonth(); }
+
+tickClock();
+setInterval(tickClock, 30000); // refresh every 30s
+
+// ── DATA ──────────────────────────────────────
+const REGION_DATA = {
+  "Greater Accra":{
+    ndvi:{val:"0.72",lbl:"Healthy vegetation",pct:72},
+    lst:{val:"31.4°C",lbl:"Near-optimal surface temp",pct:68},
+    smap:{val:"0.29",lbl:"m³/m³ · Field capacity",pct:58},
+    evi:{val:"0.58",lbl:"Enhanced veg. index",pct:64},
+    alert:{msg:"Conditions normal. All indices within optimal planting range for Greater Accra.",warn:false},
+    ring:{cx:112,cy:108},
+    ndviArr:[0.52,0.55,0.60,0.68,0.74,0.72,0.66,0.55,0.60,0.70,0.64,0.54],
+    soilArr:[0.28,0.30,0.34,0.36,0.34,0.30,0.27,0.22,0.26,0.30,0.28,0.26],
+    lstArr: [0.60,0.55,0.46,0.50,0.55,0.62,0.66,0.68,0.65,0.60,0.56,0.62],
+    crops:[
+      {icon:"🌽",name:"Maize",action:"Optimal planting window — act now",pill:"pg",plbl:"Plant now",conf:"94%",cc:"cf-hi"},
+      {icon:"🍠",name:"Cassava",action:"Soil moisture adequate for transplant",pill:"pg",plbl:"Plant now",conf:"88%",cc:"cf-hi"},
+      {icon:"🫘",name:"Cowpea",action:"Monitor for late-season moisture",pill:"pt",plbl:"Monitor",conf:"76%",cc:"cf-md"},
+      {icon:"🍅",name:"Tomato",action:"LST elevated — delay 5 days",pill:"pa",plbl:"Wait",conf:"81%",cc:"cf-md"},
+      {icon:"🫚",name:"Groundnut",action:"NDVI supports pod filling stage",pill:"pb",plbl:"Pre-harvest",conf:"91%",cc:"cf-hi"},
+    ]
+  },
+  "Ashanti":{
+    ndvi:{val:"0.68",lbl:"Dense forest canopy",pct:68},
+    lst:{val:"29.8°C",lbl:"Optimal thermal range",pct:56},
+    smap:{val:"0.33",lbl:"m³/m³ · Well saturated",pct:66},
+    evi:{val:"0.63",lbl:"Strong canopy vigour",pct:70},
+    alert:{msg:"Ashanti: SMAP 0.33 m³/m³ — excellent soil moisture. Major season planting window open.",warn:false},
+    ring:{cx:118,cy:73},
+    ndviArr:[0.55,0.58,0.63,0.70,0.76,0.78,0.72,0.60,0.66,0.74,0.68,0.58],
+    soilArr:[0.32,0.34,0.38,0.40,0.38,0.34,0.30,0.26,0.30,0.36,0.33,0.30],
+    lstArr: [0.52,0.48,0.42,0.44,0.50,0.56,0.60,0.65,0.60,0.55,0.50,0.55],
+    crops:[
+      {icon:"🌽",name:"Maize",action:"Strong NDVI — good canopy coverage",pill:"pt",plbl:"Monitor",conf:"89%",cc:"cf-hi"},
+      {icon:"🍫",name:"Cocoa",action:"Sentinel-2 NIR shows healthy cover",pill:"pt",plbl:"Monitor",conf:"93%",cc:"cf-hi"},
+      {icon:"🍌",name:"Plantain",action:"Optimal rainfall for sucker planting",pill:"pg",plbl:"Plant now",conf:"85%",cc:"cf-hi"},
+      {icon:"🫘",name:"Cowpea",action:"Pre-harvest moisture optimal",pill:"pb",plbl:"Pre-harvest",conf:"80%",cc:"cf-md"},
+    ]
+  },
+  "Northern":{
+    ndvi:{val:"0.41",lbl:"Dry season vegetation stress",pct:41},
+    lst:{val:"36.2°C",lbl:"Above heat stress threshold",pct:88},
+    smap:{val:"0.18",lbl:"m³/m³ · Below field capacity",pct:36},
+    evi:{val:"0.35",lbl:"Vegetation stress signal",pct:38},
+    alert:{msg:"⚠ SMAP anomaly: 18% below-normal moisture. Delay maize planting 7–10 days. Monitor CHIRPS for next rain event.",warn:true},
+    ring:{cx:136,cy:38},
+    ndviArr:[0.30,0.28,0.32,0.40,0.50,0.55,0.52,0.45,0.50,0.55,0.48,0.35],
+    soilArr:[0.18,0.16,0.20,0.24,0.28,0.30,0.28,0.20,0.22,0.26,0.22,0.18],
+    lstArr: [0.80,0.82,0.75,0.68,0.60,0.55,0.58,0.70,0.65,0.60,0.65,0.78],
+    crops:[
+      {icon:"🌾",name:"Sorghum",action:"SMAP anomaly — delay 7–10 days",pill:"pa",plbl:"Wait",conf:"62%",cc:"cf-lo"},
+      {icon:"🌽",name:"Maize",action:"Soil moisture deficit — hold planting",pill:"pa",plbl:"Wait",conf:"58%",cc:"cf-lo"},
+      {icon:"🫘",name:"Cowpea",action:"EVI stress — monitor closely",pill:"pt",plbl:"Monitor",conf:"70%",cc:"cf-md"},
+      {icon:"🍠",name:"Yam",action:"Adequate conditions for mounding",pill:"pg",plbl:"Prepare",conf:"78%",cc:"cf-md"},
+    ]
+  },
+  "Brong-Ahafo":{
+    ndvi:{val:"0.65",lbl:"Moderate vegetation cover",pct:65},
+    lst:{val:"30.5°C",lbl:"Near-optimal temperature",pct:62},
+    smap:{val:"0.31",lbl:"m³/m³ · Good moisture",pct:62},
+    evi:{val:"0.60",lbl:"Healthy canopy index",pct:66},
+    alert:{msg:"Brong-Ahafo: SMAP 0.31 m³/m³ and LST 30.5°C — good conditions for maize and cassava planting.",warn:false},
+    ring:{cx:97,cy:78},
+    ndviArr:[0.48,0.50,0.56,0.64,0.70,0.72,0.66,0.56,0.62,0.70,0.64,0.52],
+    soilArr:[0.28,0.30,0.34,0.36,0.34,0.32,0.28,0.24,0.28,0.34,0.31,0.28],
+    lstArr: [0.58,0.55,0.46,0.48,0.54,0.60,0.64,0.68,0.62,0.56,0.52,0.58],
+    crops:[
+      {icon:"🌽",name:"Maize",action:"Bimodal rainfall supports planting",pill:"pg",plbl:"Plant now",conf:"87%",cc:"cf-hi"},
+      {icon:"🍠",name:"Cassava",action:"EVI indicates good conditions",pill:"pg",plbl:"Plant now",conf:"82%",cc:"cf-hi"},
+      {icon:"🫚",name:"Groundnut",action:"Approaching harvest window",pill:"pb",plbl:"Pre-harvest",conf:"79%",cc:"cf-md"},
+    ]
+  },
+  "Volta":{
+    ndvi:{val:"0.70",lbl:"Good vegetation cover",pct:70},
+    lst:{val:"30.1°C",lbl:"Favourable temperature",pct:60},
+    smap:{val:"0.34",lbl:"m³/m³ · Basin well-moistened",pct:68},
+    evi:{val:"0.62",lbl:"Strong EVI signal",pct:68},
+    alert:{msg:"Volta: Basin moisture 0.34 m³/m³ — excellent for rice transplanting and maize planting.",warn:false},
+    ring:{cx:158,cy:82},
+    ndviArr:[0.52,0.54,0.60,0.68,0.74,0.76,0.70,0.58,0.64,0.72,0.66,0.54],
+    soilArr:[0.30,0.32,0.36,0.38,0.36,0.34,0.30,0.26,0.30,0.36,0.34,0.28],
+    lstArr: [0.56,0.52,0.44,0.46,0.52,0.58,0.62,0.66,0.60,0.54,0.50,0.56],
+    crops:[
+      {icon:"🌾",name:"Rice",action:"Volta basin moisture supports transplant",pill:"pg",plbl:"Plant now",conf:"91%",cc:"cf-hi"},
+      {icon:"🌽",name:"Maize",action:"NDVI healthy — continue management",pill:"pt",plbl:"Monitor",conf:"84%",cc:"cf-hi"},
+      {icon:"🫘",name:"Soybean",action:"LST optimal for pod development",pill:"pt",plbl:"Monitor",conf:"77%",cc:"cf-md"},
+    ]
+  },
+  "Upper West":{
+    ndvi:{val:"0.38",lbl:"Low — dry savanna zone",pct:38},
+    lst:{val:"37.8°C",lbl:"Extreme heat stress",pct:92},
+    smap:{val:"0.16",lbl:"m³/m³ · Severe deficit",pct:32},
+    evi:{val:"0.32",lbl:"Severe stress signal",pct:34},
+    alert:{msg:"⚠ Upper West: Severe moisture deficit (SMAP 0.16) and extreme LST 37.8°C. Wait for rains before any planting.",warn:true},
+    ring:{cx:79,cy:36},
+    ndviArr:[0.22,0.20,0.24,0.32,0.42,0.48,0.46,0.38,0.42,0.46,0.40,0.28],
+    soilArr:[0.14,0.12,0.16,0.20,0.24,0.26,0.24,0.18,0.20,0.22,0.18,0.14],
+    lstArr: [0.88,0.90,0.82,0.74,0.65,0.58,0.62,0.74,0.70,0.64,0.70,0.84],
+    crops:[
+      {icon:"🌾",name:"Sorghum",action:"Dry season — prepare only",pill:"pg",plbl:"Prepare",conf:"71%",cc:"cf-md"},
+      {icon:"🫚",name:"Groundnut",action:"SMAP shows marginal moisture",pill:"pa",plbl:"Wait",conf:"60%",cc:"cf-lo"},
+      {icon:"🌽",name:"Maize",action:"Wait for first rains — CHIRPS forecast",pill:"pa",plbl:"Wait",conf:"55%",cc:"cf-lo"},
+    ]
+  }
+};
+
+const CROP_CAL = {
+  "Maize":{cultivar:"Obatampa OPV · 100–110 days · Bimodal zone",phases:[
+    {color:"#3B6D11",title:"Mar 15–Apr 30 · Planting window S1",body:"SMAP ≥0.25 m³/m³ confirmed. Sentinel-2 surface index ready. Current window still valid — plant immediately. Optimal: late March to mid-April."},
+    {color:"#1D9E75",title:"Apr–May · Germination & V1–V3",body:"MODIS LST 28–31°C optimal. Apply basal NPK 15:15:15 @ 300 kg/ha. Use Sentinel-2 at 10m to confirm emergence uniformity across fields."},
+    {color:"#378ADD",title:"May–Jun · Vegetative V4–V9",body:"Peak SMAP moisture window. Top-dress urea @ 150 kg/ha at V6. Landsat-9 EVI should reach 0.6–0.7; values below 0.5 signal stress — scout fields immediately."},
+    {color:"#BA7517",title:"Jun–Jul · Tasseling & Silking",body:"Critical water demand. SMAP must stay ≥0.22 m³/m³. MODIS LST above 33°C causes pollen sterility. Sentinel-2 Red Edge detects chlorophyll stress 7–10 days early."},
+    {color:"#854F0B",title:"Aug–Sep · Grain fill & Harvest S1",body:"NDVI decline (0.7→0.3) signals senescence. Harvest when NDVI drops below 0.35. Target grain moisture 14–15%. Sentinel-2 NDVI serves as MoFA yield proxy."},
+    {color:"#97C459",title:"Aug–Sep · Land prep S2",body:"Begin tillage after first August rains. SMAP recharge to ≥0.27 m³/m³ signals readiness. Obatampa OPV performs well in the shorter minor season window."},
+  ]},
+  "Cassava":{cultivar:"Afisiafi / Bankye · 9–12 months · Drought-tolerant",phases:[
+    {color:"#3B6D11",title:"Mar–Apr · Stem cutting planting",body:"Plant 20–25cm cuttings at 45°. SMAP ≥0.22 m³/m³ needed. Sentinel-2 soil index confirms top-soil moisture readiness for establishment."},
+    {color:"#1D9E75",title:"Apr–Jun · Root establishment",body:"NDVI rises slowly 0.3→0.5. MODIS LST 27–32°C ideal. EVI below 0.35 at 8 weeks signals poor establishment — replant gaps immediately."},
+    {color:"#378ADD",title:"Jun–Oct · Tuber bulking",body:"Peak NDVI 0.65–0.75. SMAP monitoring for water stress. Top-dress potassium @ 120 kg/ha. Landsat-9 detects canopy gaps for pest hotspots."},
+    {color:"#854F0B",title:"Nov–Feb · Harvest window",body:"NDVI decline to 0.45–0.55 marks maturity. Dig sample roots to check size. Yield target 15–25 t/ha. Post-harvest NDVI used for market timing."},
+  ]},
+  "Cocoa":{cultivar:"Hybrid Amelonado · Perennial · Ashanti/Forest zone",phases:[
+    {color:"#3B6D11",title:"Mar–Apr · Pod setting season",body:"MODIS LST 25–28°C optimal for pod development. Sentinel-2 NIR monitors canopy shading. SMAP ≥0.28 m³/m³ required during pod set."},
+    {color:"#1D9E75",title:"May–Jul · Pod fill",body:"Peak rainfall supports pod bulking. Landsat-9 EVI 0.65–0.80 expected in healthy plots. NDVI drop >0.1 in 2 weeks is a black pod disease red flag — scout urgently."},
+    {color:"#BA7517",title:"Sep–Dec · Main crop harvest",body:"MODIS thermal anomaly detection identifies drying pods. Harvest at 6 months post-pollination. Sentinel-2 SWIR band detects over-ripe and diseased pods."},
+    {color:"#97C459",title:"Year-round · Shade management",body:"Maintain 30–50% canopy shade using Landsat-9 fractional cover. NDVI above 0.75 at stand level signals over-shading — prune for light penetration."},
+  ]},
+  "Rice":{cultivar:"AGRA WITA 9 / Jasmine 85 · 100–120 days",phases:[
+    {color:"#3B6D11",title:"Apr–May · Nursery & transplanting",body:"SMAP ≥0.35 m³/m³ for flooded nursery. Sentinel-2 NDWI confirms field flooding status. Transplant seedlings at 21 days after germination."},
+    {color:"#1D9E75",title:"May–Jul · Tillering",body:"Maintain 5cm standing water. LST 28–32°C ideal. NDVI rapid rise 0.3→0.6 confirms healthy tiller production. Apply nitrogen in 3 split doses."},
+    {color:"#378ADD",title:"Jul–Aug · Panicle initiation",body:"Most critical water stage. Landsat-9 EVI peak 0.7–0.8. MODIS LST above 35°C causes sterility. SMAP must stay ≥0.40 m³/m³ throughout."},
+    {color:"#854F0B",title:"Aug–Sep · Harvest",body:"NDVI drops from 0.7→0.4 signals grain ripening. Drain fields 2 weeks before harvest. Target grain moisture 20–22% at cutting for best milling quality."},
+  ]},
+  "Groundnut":{cultivar:"Chinese / Manipinta · 90–100 days",phases:[
+    {color:"#3B6D11",title:"Mar–Apr · Planting",body:"SMAP 0.22–0.32 m³/m³ ideal — groundnut dislikes waterlogging. Sandy-loam soils preferred. Sentinel-2 texture index identifies optimal field zones."},
+    {color:"#1D9E75",title:"Apr–Jun · Vegetative & flowering",body:"NDVI rises 0.35→0.60. LST 28–33°C optimal. Apply gypsum @ 400 kg/ha at pegging stage. Landsat-9 detects nitrogen stress patterns early."},
+    {color:"#BA7517",title:"Jun–Aug · Pod fill",body:"SMAP must stay ≥0.20 m³/m³. EVI peak 0.55–0.65. Aflatoxin risk rises under moisture stress — monitor Sentinel-2 Red Edge for early leaf senescence."},
+    {color:"#854F0B",title:"Aug–Sep · Harvest",body:"NDVI below 0.40 marks maturity. Dig test pods — 75% dark testa signals harvest-ready. Dry to 8% moisture. NDVI map used for yield estimation."},
+  ]},
+  "Cowpea":{cultivar:"Asontem / IT varieties · 60–90 days · Drought-tolerant",phases:[
+    {color:"#3B6D11",title:"Mar–Apr & Aug · Planting",body:"Drought-tolerant — plant with SMAP as low as 0.18 m³/m³. Sentinel-2 NDVI threshold 0.30 sufficient. Direct-seed at 5cm depth in well-drained soils."},
+    {color:"#1D9E75",title:"Weeks 2–5 · Vegetative growth",body:"NDVI rise 0.3→0.55. MODIS LST up to 35°C tolerated. Minimal fertilizer needed — fixes nitrogen. EVI monitors leaf area and early canopy development."},
+    {color:"#BA7517",title:"Weeks 6–8 · Flowering & pod set",body:"SMAP ≥0.18 m³/m³ critical at flowering. Landsat-9 detects water stress patches. Monitor for aphids — NDVI drops 0.05+ within one week of infestation."},
+    {color:"#854F0B",title:"Weeks 8–12 · Harvest",body:"NDVI drops to 0.35–0.40 at maturity. Harvest pods as they dry — cowpea shatters if delayed. NDVI map identifies staggered maturity zones across field."},
+  ]}
+};
+
+const CAL_INSIGHTS = {
+  "Greater Accra":{
+    "Maize":{smap:"0.29 m³/m³",smapLbl:"Adequate for S1 planting",smapPct:58,ndvi:"NDVI 0.72",ndviLbl:"Healthy pre-season canopy",ndviPct:72,lst:"31.4°C",lstLbl:"Within 27–32°C optimal range",lstPct:65,yld:"2.3 t/ha",yldLbl:"Projected S1 yield — MoFA avg.",yldPct:72},
+    "Cassava":{smap:"0.29 m³/m³",smapLbl:"Adequate for stem cutting",smapPct:58,ndvi:"NDVI 0.72",ndviLbl:"Good surface conditions",ndviPct:72,lst:"31.4°C",lstLbl:"Optimal for root establishment",lstPct:65,yld:"18 t/ha",yldLbl:"Projected fresh weight",yldPct:68},
+    "Rice":{smap:"0.29 m³/m³",smapLbl:"Below flooded field threshold",smapPct:40,ndvi:"NDVI 0.72",ndviLbl:"Canopy supports transplant",ndviPct:72,lst:"31.4°C",lstLbl:"Slightly warm for tillering",lstPct:60,yld:"2.8 t/ha",yldLbl:"Projected paddy yield",yldPct:62},
+    "Groundnut":{smap:"0.29 m³/m³",smapLbl:"Good — avoids waterlogging",smapPct:58,ndvi:"NDVI 0.72",ndviLbl:"Healthy planting zone",ndviPct:72,lst:"31.4°C",lstLbl:"Optimal thermal range",lstPct:65,yld:"1.4 t/ha",yldLbl:"Projected shelled yield",yldPct:60},
+    "Cowpea":{smap:"0.29 m³/m³",smapLbl:"Above cowpea minimum (0.18)",smapPct:58,ndvi:"NDVI 0.72",ndviLbl:"Surface ready for direct seeding",ndviPct:72,lst:"31.4°C",lstLbl:"Within tolerance range",lstPct:65,yld:"0.9 t/ha",yldLbl:"Projected dry grain yield",yldPct:55},
+    "Cocoa":{smap:"0.29 m³/m³",smapLbl:"Below cocoa optimal (0.35+)",smapPct:40,ndvi:"NDVI 0.72",ndviLbl:"Moderate canopy health",ndviPct:72,lst:"31.4°C",lstLbl:"Above cocoa optimum 25–28°C",lstPct:75,yld:"0.6 t/ha",yldLbl:"Dry bean yield estimate",yldPct:45},
+  },
+  "Ashanti":{
+    "Maize":{smap:"0.33 m³/m³",smapLbl:"Excellent — well above threshold",smapPct:66,ndvi:"NDVI 0.68",ndviLbl:"Active canopy in season",ndviPct:68,lst:"29.8°C",lstLbl:"Optimal for tasseling",lstPct:56,yld:"2.5 t/ha",yldLbl:"Projected S1 — above avg.",yldPct:78},
+    "Cassava":{smap:"0.33 m³/m³",smapLbl:"Ideal for establishment",smapPct:66,ndvi:"NDVI 0.68",ndviLbl:"Dense canopy supports intercrop",ndviPct:68,lst:"29.8°C",lstLbl:"Optimal for root development",lstPct:56,yld:"22 t/ha",yldLbl:"Projected fresh weight",yldPct:80},
+    "Cocoa":{smap:"0.33 m³/m³",smapLbl:"Good for pod development",smapPct:66,ndvi:"NDVI 0.68",ndviLbl:"Healthy NIR signal EVI 0.63",ndviPct:68,lst:"29.8°C",lstLbl:"Near-ideal for pod fill",lstPct:50,yld:"0.9 t/ha",yldLbl:"Dry bean — above national avg.",yldPct:72},
+    "Rice":{smap:"0.33 m³/m³",smapLbl:"Adequate for lowland rice",smapPct:66,ndvi:"NDVI 0.68",ndviLbl:"Good transplant zone",ndviPct:68,lst:"29.8°C",lstLbl:"Ideal for tillering",lstPct:55,yld:"3.2 t/ha",yldLbl:"Projected paddy yield",yldPct:75},
+    "Groundnut":{smap:"0.33 m³/m³",smapLbl:"Good — within safe range",smapPct:66,ndvi:"NDVI 0.68",ndviLbl:"Healthy planting conditions",ndviPct:68,lst:"29.8°C",lstLbl:"Excellent thermal window",lstPct:56,yld:"1.6 t/ha",yldLbl:"Projected shelled yield",yldPct:68},
+    "Cowpea":{smap:"0.33 m³/m³",smapLbl:"Well above minimum threshold",smapPct:66,ndvi:"NDVI 0.68",ndviLbl:"Good establishment conditions",ndviPct:68,lst:"29.8°C",lstLbl:"Ideal temperature for growth",lstPct:55,yld:"1.1 t/ha",yldLbl:"Projected dry grain yield",yldPct:65},
+  },
+  "Northern":{
+    "Maize":{smap:"0.18 m³/m³",smapLbl:"Below planting threshold — WAIT",smapPct:36,ndvi:"NDVI 0.41",ndviLbl:"Dry season stress detected",ndviPct:41,lst:"36.2°C",lstLbl:"Exceeds heat stress limit 33°C",lstPct:88,yld:"1.4 t/ha",yldLbl:"Projected — stress-adjusted",yldPct:42},
+    "Cassava":{smap:"0.18 m³/m³",smapLbl:"Marginal — monitor closely",smapPct:36,ndvi:"NDVI 0.41",ndviLbl:"Sparse vegetation cover",ndviPct:41,lst:"36.2°C",lstLbl:"Hot but cassava tolerates",lstPct:75,yld:"14 t/ha",yldLbl:"Reduced — moisture deficit",yldPct:50},
+    "Cowpea":{smap:"0.18 m³/m³",smapLbl:"At cowpea minimum threshold",smapPct:36,ndvi:"NDVI 0.41",ndviLbl:"Marginal establishment signal",ndviPct:41,lst:"36.2°C",lstLbl:"High — cowpea stress risk",lstPct:80,yld:"0.7 t/ha",yldLbl:"Below avg — moisture limited",yldPct:40},
+    "Rice":{smap:"0.18 m³/m³",smapLbl:"Insufficient for flooded rice",smapPct:20,ndvi:"NDVI 0.41",ndviLbl:"Poor conditions for transplant",ndviPct:41,lst:"36.2°C",lstLbl:"Exceeds rice heat tolerance",lstPct:88,yld:"1.6 t/ha",yldLbl:"Irrigation-only viable",yldPct:38},
+    "Groundnut":{smap:"0.18 m³/m³",smapLbl:"Below pegging threshold",smapPct:36,ndvi:"NDVI 0.41",ndviLbl:"Sparse — wait for green-up",ndviPct:41,lst:"36.2°C",lstLbl:"Aflatoxin risk elevated",lstPct:85,yld:"0.9 t/ha",yldLbl:"Stress-adjusted projection",yldPct:38},
+    "Cocoa":{smap:"0.18 m³/m³",smapLbl:"Not suitable — needs 0.28+",smapPct:20,ndvi:"NDVI 0.41",ndviLbl:"Not recommended for cocoa",ndviPct:41,lst:"36.2°C",lstLbl:"Far above cocoa optimum",lstPct:90,yld:"N/A",yldLbl:"Cocoa not viable in Northern",yldPct:10},
+  },
+  "Brong-Ahafo":{
+    "Maize":{smap:"0.31 m³/m³",smapLbl:"Good moisture for planting",smapPct:62,ndvi:"NDVI 0.65",ndviLbl:"Healthy pre-season cover",ndviPct:65,lst:"30.5°C",lstLbl:"Near-optimal planting range",lstPct:62,yld:"2.4 t/ha",yldLbl:"Projected S1 yield",yldPct:75},
+    "Cassava":{smap:"0.31 m³/m³",smapLbl:"Ideal for root establishment",smapPct:62,ndvi:"NDVI 0.65",ndviLbl:"Good surface conditions",ndviPct:65,lst:"30.5°C",lstLbl:"Optimal thermal range",lstPct:62,yld:"20 t/ha",yldLbl:"Projected fresh weight",yldPct:76},
+    "Groundnut":{smap:"0.31 m³/m³",smapLbl:"Good for pegging stage",smapPct:62,ndvi:"NDVI 0.65",ndviLbl:"Healthy planting zone",ndviPct:65,lst:"30.5°C",lstLbl:"Good thermal window",lstPct:62,yld:"1.5 t/ha",yldLbl:"Projected shelled yield",yldPct:65},
+    "Rice":{smap:"0.31 m³/m³",smapLbl:"Moderate — irrigation likely needed",smapPct:55,ndvi:"NDVI 0.65",ndviLbl:"Adequate transplant zone",ndviPct:65,lst:"30.5°C",lstLbl:"Good for rice tillering",lstPct:60,yld:"2.9 t/ha",yldLbl:"Projected paddy yield",yldPct:70},
+    "Cowpea":{smap:"0.31 m³/m³",smapLbl:"Excellent for cowpea",smapPct:62,ndvi:"NDVI 0.65",ndviLbl:"Ready for direct seeding",ndviPct:65,lst:"30.5°C",lstLbl:"Within cowpea tolerance",lstPct:62,yld:"1.0 t/ha",yldLbl:"Projected dry grain",yldPct:60},
+    "Cocoa":{smap:"0.31 m³/m³",smapLbl:"Marginal for cocoa",smapPct:55,ndvi:"NDVI 0.65",ndviLbl:"Moderate canopy cover",ndviPct:65,lst:"30.5°C",lstLbl:"Above cocoa optimum",lstPct:68,yld:"0.7 t/ha",yldLbl:"Dry bean estimate",yldPct:52},
+  },
+  "Volta":{
+    "Rice":{smap:"0.34 m³/m³",smapLbl:"Excellent for flooded rice",smapPct:68,ndvi:"NDVI 0.70",ndviLbl:"Strong transplant zone cover",ndviPct:70,lst:"30.1°C",lstLbl:"Ideal for rice tillering",lstPct:60,yld:"3.5 t/ha",yldLbl:"Projected paddy — above avg.",yldPct:82},
+    "Maize":{smap:"0.34 m³/m³",smapLbl:"Excellent soil moisture",smapPct:68,ndvi:"NDVI 0.70",ndviLbl:"Healthy canopy in season",ndviPct:70,lst:"30.1°C",lstLbl:"Optimal for vegetative stage",lstPct:58,yld:"2.5 t/ha",yldLbl:"Projected S1 yield",yldPct:78},
+    "Cassava":{smap:"0.34 m³/m³",smapLbl:"Good for root establishment",smapPct:68,ndvi:"NDVI 0.70",ndviLbl:"Dense vegetation support",ndviPct:70,lst:"30.1°C",lstLbl:"Optimal root zone temp",lstPct:58,yld:"21 t/ha",yldLbl:"Projected fresh weight",yldPct:78},
+    "Cowpea":{smap:"0.34 m³/m³",smapLbl:"Well above cowpea minimum",smapPct:68,ndvi:"NDVI 0.70",ndviLbl:"Good establishment conditions",ndviPct:70,lst:"30.1°C",lstLbl:"Ideal temperature",lstPct:58,yld:"1.1 t/ha",yldLbl:"Projected dry grain",yldPct:66},
+    "Groundnut":{smap:"0.34 m³/m³",smapLbl:"Good — watch waterlogging",smapPct:60,ndvi:"NDVI 0.70",ndviLbl:"Healthy zone conditions",ndviPct:70,lst:"30.1°C",lstLbl:"Good thermal window",lstPct:58,yld:"1.5 t/ha",yldLbl:"Projected shelled yield",yldPct:64},
+    "Cocoa":{smap:"0.34 m³/m³",smapLbl:"Good for cocoa pod set",smapPct:65,ndvi:"NDVI 0.70",ndviLbl:"Strong canopy health",ndviPct:70,lst:"30.1°C",lstLbl:"Near ideal for cocoa",lstPct:52,yld:"0.85 t/ha",yldLbl:"Dry bean estimate",yldPct:66},
+  },
+  "Upper West":{
+    "Maize":{smap:"0.16 m³/m³",smapLbl:"Severe deficit — do not plant",smapPct:28,ndvi:"NDVI 0.38",ndviLbl:"Extreme dry stress signal",ndviPct:38,lst:"37.8°C",lstLbl:"Far above stress limit 33°C",lstPct:92,yld:"0.9 t/ha",yldLbl:"Very low — drought stressed",yldPct:28},
+    "Cassava":{smap:"0.16 m³/m³",smapLbl:"Very low — cassava just tolerates",smapPct:28,ndvi:"NDVI 0.38",ndviLbl:"Sparse but cassava adapts",ndviPct:38,lst:"37.8°C",lstLbl:"Heat stress on establishment",lstPct:82,yld:"11 t/ha",yldLbl:"Low — severe moisture stress",yldPct:35},
+    "Cowpea":{smap:"0.16 m³/m³",smapLbl:"At absolute minimum threshold",smapPct:28,ndvi:"NDVI 0.38",ndviLbl:"Sparse cover — plant with care",ndviPct:38,lst:"37.8°C",lstLbl:"Very high heat stress risk",lstPct:88,yld:"0.6 t/ha",yldLbl:"Below potential — drought",yldPct:30},
+    "Groundnut":{smap:"0.16 m³/m³",smapLbl:"Below pegging threshold",smapPct:28,ndvi:"NDVI 0.38",ndviLbl:"Insufficient surface moisture",ndviPct:38,lst:"37.8°C",lstLbl:"Aflatoxin risk very high",lstPct:90,yld:"0.7 t/ha",yldLbl:"High risk season",yldPct:28},
+    "Rice":{smap:"0.16 m³/m³",smapLbl:"Not viable — rice needs 0.35+",smapPct:15,ndvi:"NDVI 0.38",ndviLbl:"Not suitable for rice",ndviPct:38,lst:"37.8°C",lstLbl:"Far above rice heat tolerance",lstPct:92,yld:"N/A",yldLbl:"Rice not recommended here",yldPct:10},
+    "Cocoa":{smap:"0.16 m³/m³",smapLbl:"Not suitable — needs 0.28+",smapPct:15,ndvi:"NDVI 0.38",ndviLbl:"Not suitable for cocoa",ndviPct:38,lst:"37.8°C",lstLbl:"Far above cocoa optimum",lstPct:92,yld:"N/A",yldLbl:"Cocoa not viable here",yldPct:10},
+  }
+};
+
+const CROP_TIMELINE = {
+  "Maize":{s1rows:[
+    {lbl:"Land prep",bars:[{c:"#3B6D11",m:1,l:.4,r:0},{c:"#3B6D11",m:2,l:0,r:.5}]},
+    {lbl:"Planting S1",bars:[{c:"#3B6D11",m:2,l:.5,r:0},{c:"#3B6D11",m:3,l:0,r:0},{c:"#3B6D11",m:4,l:0,r:.6}]},
+    {lbl:"Germination",bars:[{c:"#63992266",m:3,l:.5,r:0},{c:"#63992266",m:4,l:0,r:0},{c:"#63992266",m:5,l:0,r:.7}]},
+    {lbl:"Vegetative V1–V9",bars:[{c:"#3B6D11",m:4,l:.1,r:0},{c:"#3B6D11",m:5,l:0,r:0},{c:"#3B6D11",m:6,l:0,r:.5}]},
+    {lbl:"Tasseling/Silking",bars:[{c:"#BA7517",m:6,l:.5,r:0},{c:"#BA7517",m:7,l:0,r:.3}]},
+    {lbl:"Harvest S1",bars:[{c:"#854F0B",m:8,l:.2,r:0},{c:"#854F0B",m:9,l:0,r:0},{c:"#854F0B",m:10,l:0,r:.7}]},
+  ],s2rows:[
+    {lbl:"Planting S2",bars:[{c:"#97C459",m:7,l:.5,r:0},{c:"#97C459",m:8,l:0,r:0},{c:"#97C459",m:9,l:0,r:.5}]},
+    {lbl:"Vegetative S2",bars:[{c:"#97C459",m:9,l:.5,r:0},{c:"#97C459",m:10,l:0,r:0},{c:"#97C459",m:11,l:0,r:.5}]},
+    {lbl:"Tasseling S2",bars:[{c:"#BA7517",m:10,l:0,r:0},{c:"#BA7517",m:11,l:0,r:.3}]},
+    {lbl:"Harvest S2",bars:[{c:"#854F0B",m:11,l:.6,r:0},{c:"#854F0B",m:0,l:0,r:.5}]},
+  ]},
+  "Cassava":{s1rows:[
+    {lbl:"Land prep",bars:[{c:"#3B6D11",m:1,l:.4,r:0},{c:"#3B6D11",m:2,l:0,r:.4}]},
+    {lbl:"Planting S1",bars:[{c:"#3B6D11",m:2,l:.4,r:0},{c:"#3B6D11",m:3,l:0,r:.6}]},
+    {lbl:"Establishment",bars:[{c:"#63992266",m:3,l:.6,r:0},{c:"#63992266",m:4,l:0,r:0},{c:"#63992266",m:5,l:0,r:0}]},
+    {lbl:"Tuber bulking",bars:[{c:"#3B6D11",m:5,l:0,r:0},{c:"#3B6D11",m:6,l:0,r:0},{c:"#3B6D11",m:7,l:0,r:0},{c:"#3B6D11",m:8,l:0,r:0},{c:"#3B6D11",m:9,l:0,r:0}]},
+    {lbl:"Harvest window",bars:[{c:"#854F0B",m:10,l:0,r:0},{c:"#854F0B",m:11,l:0,r:0},{c:"#854F0B",m:0,l:0,r:0}]},
+  ],s2rows:[
+    {lbl:"Planting S2",bars:[{c:"#97C459",m:7,l:.5,r:0},{c:"#97C459",m:8,l:0,r:.5}]},
+    {lbl:"Bulking S2",bars:[{c:"#97C459",m:8,l:.5,r:0},{c:"#97C459",m:9,l:0,r:0},{c:"#97C459",m:10,l:0,r:0},{c:"#97C459",m:11,l:0,r:0}]},
+    {lbl:"Harvest S2",bars:[{c:"#854F0B",m:3,l:0,r:0},{c:"#854F0B",m:4,l:0,r:0},{c:"#854F0B",m:5,l:0,r:.5}]},
+  ]},
+  "Cocoa":{s1rows:[
+    {lbl:"Pod setting",bars:[{c:"#3B6D11",m:2,l:.5,r:0},{c:"#3B6D11",m:3,l:0,r:0}]},
+    {lbl:"Pod fill",bars:[{c:"#1D9E75",m:4,l:0,r:0},{c:"#1D9E75",m:5,l:0,r:0},{c:"#1D9E75",m:6,l:0,r:0}]},
+    {lbl:"Main harvest",bars:[{c:"#854F0B",m:8,l:0,r:0},{c:"#854F0B",m:9,l:0,r:0},{c:"#854F0B",m:10,l:0,r:0},{c:"#854F0B",m:11,l:0,r:0}]},
+    {lbl:"Shade mgmt (yr-round)",bars:[{c:"#97C45977",m:0,l:0,r:0},{c:"#97C45977",m:1,l:0,r:0},{c:"#97C45977",m:2,l:0,r:0},{c:"#97C45977",m:3,l:0,r:0},{c:"#97C45977",m:4,l:0,r:0},{c:"#97C45977",m:5,l:0,r:0},{c:"#97C45977",m:6,l:0,r:0},{c:"#97C45977",m:7,l:0,r:0},{c:"#97C45977",m:8,l:0,r:0},{c:"#97C45977",m:9,l:0,r:0},{c:"#97C45977",m:10,l:0,r:0},{c:"#97C45977",m:11,l:0,r:0}]},
+  ],s2rows:[]},
+  "Rice":{s1rows:[
+    {lbl:"Nursery",bars:[{c:"#3B6D11",m:3,l:0,r:0},{c:"#3B6D11",m:4,l:0,r:.5}]},
+    {lbl:"Transplanting",bars:[{c:"#3B6D11",m:4,l:.5,r:0},{c:"#3B6D11",m:5,l:0,r:.4}]},
+    {lbl:"Tillering",bars:[{c:"#1D9E75",m:5,l:.4,r:0},{c:"#1D9E75",m:6,l:0,r:0}]},
+    {lbl:"Heading/Panicle",bars:[{c:"#BA7517",m:6,l:0,r:0},{c:"#BA7517",m:7,l:0,r:.4}]},
+    {lbl:"Harvest S1",bars:[{c:"#854F0B",m:7,l:.4,r:0},{c:"#854F0B",m:8,l:0,r:.5}]},
+  ],s2rows:[
+    {lbl:"Nursery S2",bars:[{c:"#97C459",m:8,l:.5,r:0},{c:"#97C459",m:9,l:0,r:.5}]},
+    {lbl:"Tillering S2",bars:[{c:"#97C45988",m:9,l:.5,r:0},{c:"#97C45988",m:10,l:0,r:0}]},
+    {lbl:"Harvest S2",bars:[{c:"#854F0B",m:10,l:.5,r:0},{c:"#854F0B",m:11,l:0,r:.5}]},
+  ]},
+  "Groundnut":{s1rows:[
+    {lbl:"Planting S1",bars:[{c:"#3B6D11",m:2,l:0,r:0},{c:"#3B6D11",m:3,l:0,r:.6}]},
+    {lbl:"Vegetative",bars:[{c:"#1D9E75",m:3,l:.6,r:0},{c:"#1D9E75",m:4,l:0,r:0},{c:"#1D9E75",m:5,l:0,r:.3}]},
+    {lbl:"Pegging/Pod fill",bars:[{c:"#BA7517",m:5,l:.3,r:0},{c:"#BA7517",m:6,l:0,r:0},{c:"#BA7517",m:7,l:0,r:.3}]},
+    {lbl:"Harvest S1",bars:[{c:"#854F0B",m:7,l:.3,r:0},{c:"#854F0B",m:8,l:0,r:.6}]},
+  ],s2rows:[
+    {lbl:"Planting S2",bars:[{c:"#97C459",m:7,l:.6,r:0},{c:"#97C459",m:8,l:0,r:0}]},
+    {lbl:"Pod fill S2",bars:[{c:"#BA751788",m:9,l:0,r:0},{c:"#BA751788",m:10,l:0,r:0}]},
+    {lbl:"Harvest S2",bars:[{c:"#854F0B",m:10,l:.5,r:0},{c:"#854F0B",m:11,l:0,r:.4}]},
+  ]},
+  "Cowpea":{s1rows:[
+    {lbl:"Planting S1",bars:[{c:"#3B6D11",m:2,l:0,r:0},{c:"#3B6D11",m:3,l:0,r:.6}]},
+    {lbl:"Vegetative",bars:[{c:"#1D9E75",m:3,l:.6,r:0},{c:"#1D9E75",m:4,l:0,r:.3}]},
+    {lbl:"Flowering",bars:[{c:"#BA7517",m:4,l:.3,r:0},{c:"#BA7517",m:5,l:0,r:.4}]},
+    {lbl:"Harvest S1",bars:[{c:"#854F0B",m:5,l:.4,r:0},{c:"#854F0B",m:6,l:0,r:.5}]},
+  ],s2rows:[
+    {lbl:"Planting S2",bars:[{c:"#97C459",m:7,l:0,r:0},{c:"#97C459",m:8,l:0,r:.5}]},
+    {lbl:"Vegetative S2",bars:[{c:"#97C45988",m:8,l:.5,r:0},{c:"#97C45988",m:9,l:0,r:.4}]},
+    {lbl:"Harvest S2",bars:[{c:"#854F0B",m:9,l:.4,r:0},{c:"#854F0B",m:10,l:0,r:.5}]},
+  ]}
+};
+
+// ── RENDER ────────────────────────────────────
+let trendChart = null;
+
+function refresh() {
+  const region = document.getElementById('regionSel').value;
+  const crop   = document.getElementById('cropSel').value;
+  const rd = REGION_DATA[region];
+
+  // Satellite cards
+  document.getElementById('satTitle').textContent = `Satellite indices · ${region}`;
+  ['ndvi','lst','smap','evi'].forEach(k => {
+    document.getElementById(`v-${k}`).textContent = rd[k].val;
+    document.getElementById(`l-${k}`).textContent = rd[k].lbl;
+    document.getElementById(`b-${k}`).style.width  = rd[k].pct + '%';
+  });
+
+  // Alert
+  const ab = document.getElementById('alertBar');
+  document.getElementById('alertText').textContent = rd.alert.msg;
+  ab.style.cssText = rd.alert.warn
+    ? 'margin:.65rem 1.4rem .2rem;border-radius:var(--border-radius-md);padding:6px 11px;display:flex;align-items:flex-start;gap:7px;font-size:11px;background:#FAEEDA;border:.5px solid #EF9F27;color:#633806'
+    : 'margin:.65rem 1.4rem .2rem;border-radius:var(--border-radius-md);padding:6px 11px;display:flex;align-items:flex-start;gap:7px;font-size:11px;background:#EAF3DE;border:.5px solid #97C459;color:#27500A';
+
+  // Map ring
+  const ring = document.getElementById('ring');
+  ring.setAttribute('cx', rd.ring.cx); ring.setAttribute('cy', rd.ring.cy);
+  ring.setAttribute('stroke', rd.alert.warn ? '#EF9F27' : '#185FA5');
+
+  // Crop list
+  document.getElementById('cropList').innerHTML = rd.crops.map(c=>`
+    <div class="crop-row">
+      <div class="cico">${c.icon}</div>
+      <div style="flex:1"><div class="cname">${c.name}</div><div class="cact">${c.action}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span class="pill ${c.pill}">${c.plbl}</span>
+        <span class="${c.cc}">${c.conf}</span>
+      </div>
+    </div>`).join('');
+
+  // Trend chart
+  if (!trendChart) {
+    trendChart = new Chart(document.getElementById('trendChart'),{
+      type:'line',
+      data:{labels:MONTH_NAMES,datasets:[
+        {label:'NDVI',data:rd.ndviArr,borderColor:'#3B6D11',backgroundColor:'rgba(59,109,17,.07)',tension:.4,pointRadius:2,borderWidth:1.5,fill:true},
+        {label:'Soil',data:rd.soilArr,borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,.05)',tension:.4,pointRadius:2,borderWidth:1.5,fill:true,borderDash:[4,3]},
+        {label:'LST', data:rd.lstArr, borderColor:'#854F0B',tension:.4,pointRadius:2,borderWidth:1.5,fill:false,borderDash:[2,2]},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{display:false},ticks:{font:{size:9},color:'#888'}},
+          y:{grid:{color:'rgba(128,128,128,.1)'},ticks:{font:{size:9},color:'#888',callback:v=>v.toFixed(2)},min:.1,max:1.0}
+        }}
+    });
+  } else {
+    trendChart.data.datasets[0].data = rd.ndviArr;
+    trendChart.data.datasets[1].data = rd.soilArr;
+    trendChart.data.datasets[2].data = rd.lstArr;
+    trendChart.update('active');
+  }
+
+  // Dashboard ask btn
+  document.getElementById('dashAskTxt').textContent = `View crop calendar for ${crop} · ${region} ↗`;
+
+  // ── Calendar ──
+  const cal = CROP_CAL[crop] || CROP_CAL["Maize"];
+  document.getElementById('calTitle').textContent = `${crop} Crop Calendar — ${region}`;
+  document.getElementById('calMeta').textContent  = `Cultivar: ${cal.cultivar}`;
+
+  // Calendar insight cards
+  const regionIns = CAL_INSIGHTS[region] || CAL_INSIGHTS["Greater Accra"];
+  const ins = regionIns[crop] || Object.values(regionIns)[0];
+  setIns('smap',  ins.smap,  ins.smapLbl,  ins.smapPct);
+  setIns('ndvi',  ins.ndvi,  ins.ndviLbl,  ins.ndviPct);
+  setIns('lst',   ins.lst,   ins.lstLbl,   ins.lstPct);
+  setIns('yield', ins.yld,   ins.yldLbl,   ins.yldPct);
+
+  // Phase advisories
+  document.getElementById('phaseList').innerHTML = cal.phases.map(p=>`
+    <div class="prow">
+      <div class="pmk" style="background:${p.color}"></div>
+      <div class="ptxt"><strong>${p.title}</strong><br><span>${p.body}</span></div>
+    </div>`).join('');
+
+  // Timeline
+  renderTimeline(crop, rd);
+
+  // Calendar ask btn
+  document.getElementById('calAskTxt').textContent = `Ask: ${crop} fertilizer + stress monitoring in ${region} ↗`;
+  document.getElementById('calAskBtn').onclick = () =>
+    sendPrompt(`What fertilizer schedule and pest management should I follow for ${crop} in ${region}, Ghana? Include NDVI-based stress detection tips.`);
+}
+
+function setIns(k, val, lbl, pct) {
+  document.getElementById(`ci-${k}`).textContent    = val;
+  document.getElementById(`ci-${k}-lbl`).textContent = lbl;
+  document.getElementById(`ci-${k}-bar`).style.width = pct + '%';
+}
+
+function renderTimeline(crop, rd) {
+  const tl  = CROP_TIMELINE[crop] || CROP_TIMELINE["Maize"];
+  const cm  = currentMonthIdx();
+  const smapV = parseFloat(rd.smap.val);
+  const ndviV = parseFloat(rd.ndvi.val);
+  const smapOps = MONTH_NAMES.map((_,i)=> Math.min(.9, .25 + (smapV/0.40)*0.5*(0.6+0.4*Math.sin((i-1)*Math.PI/6))));
+  const ndviOps = MONTH_NAMES.map((_,i)=> Math.min(.9, .2  + (ndviV/0.80)*0.7*(0.5+0.5*Math.sin((i-2)*Math.PI/5.5))));
+
+  let h = '';
+  // header
+  h += '<div></div>';
+  MONTH_NAMES.forEach((m,i) => {
+    h += `<div class="th${i===cm?' now':''}"><span style="display:inline-block${i===cm?';color:#185FA5;font-weight:600':''}">${m}${i===cm?'▼':''}</span></div>`;
+  });
+
+  // S1
+  h += `<div class="grphdr">— Season 1 (major)</div>`;
+  tl.s1rows.forEach(r => { h += buildRow(r); });
+  h += '<div class="tldiv"></div>';
+
+  // S2
+  if (tl.s2rows.length) {
+    h += `<div class="grphdr">— Season 2 (minor)</div>`;
+    tl.s2rows.forEach(r => { h += buildRow(r); });
+    h += '<div class="tldiv"></div>';
+  }
+
+  // Satellite rows
+  h += `<div class="grphdr">— Satellite indices</div>`;
+  h += buildOpRow('SMAP Soil H₂O', smapOps, '#378ADD');
+  h += buildOpRow('Sentinel-2 NDVI', ndviOps, '#1D9E75');
+
+  document.getElementById('tlg').innerHTML = h;
+}
+
+function buildRow(row) {
+  const cells = Array(12).fill('');
+  row.bars.forEach(b => {
+    const ls = b.l > 0 ? `left:${b.l*100}%` : 'left:0';
+    const rs = b.r > 0 ? `right:${b.r*100}%` : 'right:0';
+    cells[b.m] = `<div class="b" style="background:${b.c};${ls};${rs}"></div>`;
+  });
+  return `<div class="trl">${row.lbl}</div>` + cells.map(c=>`<div class="tc">${c}</div>`).join('');
+}
+
+function buildOpRow(lbl, ops, color) {
+  return `<div class="trl" style="font-size:8px">${lbl}</div>` +
+    ops.map(op=>`<div class="tc"><div class="b" style="background:${color};opacity:${op.toFixed(2)};left:0;right:0"></div></div>`).join('');
+}
+
+// ── NAV ───────────────────────────────────────
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+function switchToCalendar() {
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===1));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-calendar').classList.add('active');
+}
+function setSeason(s,btn) {
+  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── INIT ──────────────────────────────────────
+refresh();
+</script>
